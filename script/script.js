@@ -11,6 +11,8 @@ document.addEventListener('keypress', (e)=>{
         jogo_iniciado = true;
     }
 })
+//eventListener para iniciar o jogo, é o que faz a bolinha se mexer
+//para começar o jogo com a tecla W
 
 document.addEventListener('keydown', (e) =>{
     switch(e.code) {
@@ -46,6 +48,7 @@ class Objetos {
         ctx.fillStyle = cor
         ctx.fillRect(this.x, this.y, this.largura, this.altura)
     }
+    //Desenhar no canvas
     atualizar(){
         throw new Error('Implementar nas classes filhas');
     }
@@ -53,6 +56,9 @@ class Objetos {
         this.x = posicaoX;
         this.y = posicaoY;
     }
+    //Será utilizado para resetar a plataforma e bola para suas posições
+    //iniciais quando o jogo for reiniciado após destruir todos os
+    //blocos
     aumentarVelocidade(){
         throw new Error('Implementar nas classes filhas');
     }
@@ -71,6 +77,7 @@ class Plataforma extends Objetos{
     andar(valorDirecao){
         this.#velocidade = valorDirecao;
     }
+    //Se for pressionado para andar para a direita ele aumentara sua posicao X no canvas positivamente, e se for pra esquerda negativamente.
     atualizar(){
         if(tecla_pressionada.KeyA === true ){
             if(this.x > 0){
@@ -142,7 +149,7 @@ class Bola extends Objetos{
             this.#velocidadeY = 0;
             game_over = true;
         }
-        //Se a bolinha bateu no chao do canvas, para ela e atualiza a variavel game_over para
+        //Se a bolinha bateu no chao do canvas, para a bolinha e atualiza a variavel game_over para
         //aplicar as mudanças de quando o jogo foi perdido
     }
     colisaoPlataforma(){
@@ -194,6 +201,10 @@ class Bola extends Objetos{
         }else{
             this.#velocidadeY--;
         }
+        //Aumenta a velocidade da bolinha ao destruir todos os blocos
+        //como a bolinha pode terminar com numero negativo ou positivo
+        //foi necessario criar estas condições, pois se ela começasse 
+        //com um numero negativo e recebe ++ iria diminuir a velocidade
     }
 }
 
@@ -205,13 +216,15 @@ class Obstaculos extends Objetos{
     }
     colidiu(obstaculoColidido){
         pontuacao.setPontuacao(this.#valorPonto);
+        //Quando objeto for destruido, acrescenta na pontuacao maxima
+        //o ponto que o objeto vale
         array_obstaculos = array_obstaculos.filter(
             (obstaculo) => {
                 return obstaculo !== obstaculoColidido;
+                //Caso o objeto tenha sido colidido, ele é removido do array
             }
         )
     }
-    //Caso o objeto tenha sido colidido, ele é removido do array
 }
 class Pontuacao {
     #pontuacaoTotal
@@ -253,6 +266,7 @@ function desenhaBotaoGameOver(){
     ctx.font="40px Arial"
     ctx.fillText(`Recomeçar`,canvas.width - 380, canvas.height - 255)
 }
+
 const pontuacao = new Pontuacao();
 const plataforma = new Plataforma(canvas.width - 330, canvas.height - 50, 100, 15)
 const bolinha = new Bola(canvas. width - 290, canvas.height - 71, 20, 20)
@@ -304,15 +318,23 @@ function loop() {
         ctx.clearRect(0,0,canvas.width, canvas.height)
         desenhaGameOver()
         return
+        //Se o jogador perdeu, reseta a tela do canvas e desenha
+        //a tela de game over
     }
     if(array_obstaculos.length === 0){
+        //se o array de obstaculo estiver vazio
         bolinha.setPosicao(canvas. width - 290, canvas.height - 71);
         plataforma.setPosicao(canvas.width - 330, canvas.height - 50);
+        //Reseta a bolinha e a plataforma para suas posições originais
         jogo_iniciado = false;
+        //Faz com que quando for resetado a bolinha fique grudada novamente na
+        //plataforma ate o jogador pressionar "W" novamente
         jogo_reiniciado++;
+        //Essa variavel aumenta o valor da velocidade e pontuacao
         bolinha.aumentarVelocidade();
         plataforma.aumentarVelocidade();
         obstaculoBuilder();
+        //Cria a array obstaculos novamente
     }
     ctx.clearRect(0,0,canvas.width, canvas.height)
     pontuacao.desenhaPontuacao(ctx,'white',"30px Arial")
