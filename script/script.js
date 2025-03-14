@@ -2,6 +2,7 @@ const canvas = document.getElementById('canvas')
 const ctx = canvas.getContext('2d')
 const tecla_pressionada = {"KeyA": false, "KeyD": false}
 let game_over = false;
+const array_obstaculos = []
 
 document.addEventListener('keydown', (e) =>{
     switch(e.code) {
@@ -25,7 +26,6 @@ document.addEventListener('keyup', (e) =>{
 })
 //eventListeners para que quando o usuário pressione o botão a plataforma ande
 //e quando pare de pressionar ela pare.
-
 
 class Objetos {
     constructor(x, y, largura, altura){
@@ -79,6 +79,7 @@ class Plataforma extends Objetos{
         this.x += this.#velocidade;
     }
 }
+
 class Bola extends Objetos{
     #velocidadeY
     #velocidadeX
@@ -93,7 +94,7 @@ class Bola extends Objetos{
         this.colisaoHorizontal();
         this.colisaoVertical();
         this.colisaoPlataforma();
-        this.colisaoObstaculos();
+        //this.colisaoObstaculos();
     }
     colisaoHorizontal(){
         if(this.x <= 0 || this.x + this.largura >= canvas.width){
@@ -119,16 +120,16 @@ class Bola extends Objetos{
             this.#velocidadeY *= -1
         }
     }
-    colisaoObstaculos(){
-        if(
-            this.y + this.altura >= array_obstaculos.linha1.y &&
-            this.x + this.largura >= array_obstaculos.linha1.x &&
-            this.x <= array_obstaculos.linha1.x + array_obstaculos.linha1.largura &&
-            this.y <= array_obstaculos.linha1.y + array_obstaculos.linha1.altura
-        ){
-            this.#velocidadeY *= -1
-        }
-    }
+    //colisaoObstaculos(){
+        //if(
+            //this.y + this.altura >= array_obstaculos.linha1.y &&
+            //this.x + this.largura >= array_obstaculos.linha1.x &&
+            //this.x <= array_obstaculos.linha1.x + array_obstaculos.linha1.largura &&
+            //this.y <= array_obstaculos.linha1.y + array_obstaculos.linha1.altura
+        //){
+            //this.#velocidadeY *= -1
+        //}
+    //}
     //Implementação básica, será mexido completamente quando eu começar a mexer com os obstaculos,
     //apenas feito para ter uma base da colisão e a função já estar iniciada.
 
@@ -138,6 +139,7 @@ class Bola extends Objetos{
     //Aparemente o bug do eixo X está presente na colisão da plataforma também, averiguar o que está errado
     //na condição if.
 }
+
 class Obstaculos extends Objetos{
     constructor(x, y, largura, altura){
         super(x, y, largura, altura);
@@ -149,13 +151,50 @@ desenhaPontuacao = function(){
     ctx.font="30px Arial"
     ctx.fillText(`Pontos: 0`,30, 50)
 }
-const array_obstaculos = {linha1 : new Obstaculos(canvas.width/2 - 50, canvas.height - 600, 90, 40)}
+
 const plataforma = new Plataforma(canvas.width - 330, canvas.height - 50, 100, 15)
 const bolinha = new Bola(canvas. width - 290, canvas.height - 71, 20, 20)
 
+function obstaculoBuilder(){
+    for(let linha = 1; linha <= 6; linha++){
+        for(let coluna = 1; coluna <= 6; coluna++){
+            console.log(array_obstaculos)
+            let distanciaY = 40;
+            let distanciaX = 90;
+            array_obstaculos.push(new Obstaculos(canvas.width - 630 + (distanciaX * linha), canvas.height - 650 + (distanciaY * coluna), 80, 30))
+        }
+    }
+}
+
+function desenhaObstaculos(){
+    array_obstaculos.forEach((obstaculo) => {
+        switch(obstaculo.y){
+            case 90:
+                obstaculo.desenha(ctx, 'red');
+                break
+            case 130:
+                obstaculo.desenha(ctx, 'orange');
+                break
+            case 170:
+                obstaculo.desenha(ctx, 'yellow');
+                break
+            case 210:
+                obstaculo.desenha(ctx, 'green');
+                break
+            case 250:
+                obstaculo.desenha(ctx, 'blue');
+                break
+            case 290:
+                obstaculo.desenha(ctx, 'purple');
+                break
+            default:
+                obstaculo.desenha(ctx, 'white');
+    }}) 
+}
+
 function loop() {
     ctx.clearRect(0,0,canvas.width, canvas.height)
-    array_obstaculos.linha1.desenha(ctx, 'yellow');
+    desenhaObstaculos();
     bolinha.desenha(ctx, 'white');
     bolinha.atualizar();
     plataforma.desenha(ctx,'red')
@@ -163,4 +202,5 @@ function loop() {
     desenhaPontuacao();
     requestAnimationFrame(loop)
 }
+obstaculoBuilder();
 loop();
