@@ -186,6 +186,9 @@ class Pontuacao {
     getPontuacaoTotal(){
         return this.#pontuacaoTotal;
     }
+    resetaPontuacao(){
+        this.#pontuacaoTotal = 0;
+    }
     desenhaPontuacao(ctx, color, font){
         ctx.fillStyle = color
         ctx.font = font
@@ -193,12 +196,25 @@ class Pontuacao {
     }
 }
 
-function desenhaPontuacao(){
+function desenhaGameOver(){
     ctx.fillStyle='white'
-    ctx.font="30px Arial"
-    ctx.fillText(`Pontos: ${pontuacao.getPontuacaoTotal()}`,30, 50)
+    ctx.font="40px Arial"
+    ctx.fillText(`Pontuação máxima`,canvas.width - 450, canvas.height/3)
+    ctx.fillStyle='white'
+    ctx.font="40px Arial"
+    ctx.fillText(`${pontuacao.getPontuacaoTotal()}`,canvas.width- 300, canvas.height/2.3)
+    desenhaBotaoGameOver()
 }
-
+function desenhaBotaoGameOver(){
+    document.addEventListener('click',(e)=>{
+        location.reload();
+    })
+    ctx.fillStyle = 'grey'
+    ctx.fillRect(canvas.width-480, canvas.height - 320, 420, 100)
+    ctx.fillStyle='white'
+    ctx.font="40px Arial"
+    ctx.fillText(`Recomeçar`,canvas.width - 380, canvas.height - 255)
+}
 const pontuacao = new Pontuacao();
 const plataforma = new Plataforma(canvas.width - 330, canvas.height - 50, 100, 15)
 const bolinha = new Bola(canvas. width - 290, canvas.height - 71, 20, 20)
@@ -245,6 +261,11 @@ function desenhaObstaculos(){
 }
 
 function loop() {
+    if(game_over){
+        ctx.clearRect(0,0,canvas.width, canvas.height)
+        desenhaGameOver()
+        return
+    }
     ctx.clearRect(0,0,canvas.width, canvas.height)
     pontuacao.desenhaPontuacao(ctx,'white',"30px Arial")
     desenhaObstaculos();
@@ -252,7 +273,6 @@ function loop() {
     bolinha.atualizar();
     plataforma.desenha(ctx,'red')
     plataforma.atualizar();
-    desenhaPontuacao();
     requestAnimationFrame(loop)
 }
 obstaculoBuilder();
