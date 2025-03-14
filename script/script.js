@@ -186,6 +186,11 @@ class Pontuacao {
     getPontuacaoTotal(){
         return this.#pontuacaoTotal;
     }
+    desenhaPontuacao(ctx, color, font){
+        ctx.fillStyle = color
+        ctx.font = font
+        ctx.fillText(`Pontos: ${pontuacao.getPontuacaoTotal()}`,30, 50)
+    }
 }
 
 function desenhaPontuacao(){
@@ -241,7 +246,7 @@ function desenhaObstaculos(){
 
 function loop() {
     ctx.clearRect(0,0,canvas.width, canvas.height)
-    desenhaPontuacao()
+    pontuacao.desenhaPontuacao(ctx,'white',"30px Arial")
     desenhaObstaculos();
     bolinha.desenha(ctx, 'white');
     bolinha.atualizar();
