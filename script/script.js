@@ -3,6 +3,7 @@ const ctx = canvas.getContext('2d')
 const tecla_pressionada = {"KeyA": false, "KeyD": false}
 let game_over = false;
 let jogo_iniciado = false;
+let jogo_reiniciado = 1;
 let array_obstaculos = []
 
 document.addEventListener('keypress', (e)=>{
@@ -48,6 +49,13 @@ class Objetos {
     atualizar(){
         throw new Error('Implementar nas classes filhas');
     }
+    setPosicao(posicaoX,posicaoY){
+        this.x = posicaoX;
+        this.y = posicaoY;
+    }
+    aumentarVelocidade(){
+        throw new Error('Implementar nas classes filhas');
+    }
 }
 
 class Plataforma extends Objetos{
@@ -89,6 +97,10 @@ class Plataforma extends Objetos{
     }
     getVelocidade(){
         return this.#velocidade
+    }
+    aumentarVelocidade(){
+        this.#andarDireita++
+        this.#andarEsquerda--;
     }
 }
 
@@ -171,6 +183,18 @@ class Bola extends Objetos{
             }
         })
     }
+    aumentarVelocidade(){
+        if(this.#velocidadeX > 0){
+            this.#velocidadeX++;
+        }else{
+            this.#velocidadeX--;
+        }
+        if(this.#velocidadeY > 0){
+            this.#velocidadeY++;
+        }else{
+            this.#velocidadeY--;
+        }
+    }
 }
 
 class Obstaculos extends Objetos{
@@ -236,9 +260,10 @@ const bolinha = new Bola(canvas. width - 290, canvas.height - 71, 20, 20)
 function obstaculoBuilder(){
     for(let linha = 1; linha <= 6; linha++){
         for(let coluna = 1; coluna <= 6; coluna++){
+            //Se quiser testar as mêcanicas de aumento de pontos/velocidade e so diminuir o maximo de linhas e colunas para ficar mais facil
             let distanciaY = 40;
             let distanciaX = 90;
-            array_obstaculos.push(new Obstaculos(canvas.width - 630 + (distanciaX * linha), canvas.height - 650 + (distanciaY * coluna), 80, 30, 700 - (100 * coluna)))
+            array_obstaculos.push(new Obstaculos(canvas.width - 630 + (distanciaX * linha), canvas.height - 650 + (distanciaY * coluna), 80, 30, (700 - (100 * coluna)) * (jogo_reiniciado * 0.2)))
             //Obstaculos(x, y, largura, altura, valorPonto)
             //valorPonto é para dar uma pontuação maior caso o jogador quebre um obstaculo da primeira linha de blocos
         }
@@ -279,6 +304,15 @@ function loop() {
         ctx.clearRect(0,0,canvas.width, canvas.height)
         desenhaGameOver()
         return
+    }
+    if(array_obstaculos.length === 0){
+        bolinha.setPosicao(canvas. width - 290, canvas.height - 71);
+        plataforma.setPosicao(canvas.width - 330, canvas.height - 50);
+        jogo_iniciado = false;
+        jogo_reiniciado++;
+        bolinha.aumentarVelocidade();
+        plataforma.aumentarVelocidade();
+        obstaculoBuilder();
     }
     ctx.clearRect(0,0,canvas.width, canvas.height)
     pontuacao.desenhaPontuacao(ctx,'white',"30px Arial")
