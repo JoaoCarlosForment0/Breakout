@@ -160,10 +160,13 @@ class Bola extends Objetos{
 }
 
 class Obstaculos extends Objetos{
-    constructor(x, y, largura, altura){
+    #valorPonto
+    constructor(x, y, largura, altura, valorPonto = 0){
         super(x, y, largura, altura);
+        this.#valorPonto = valorPonto;
     }
     colidiu(obstaculoColidido){
+        pontuacao.setPontuacao(this.#valorPonto);
         array_obstaculos = array_obstaculos.filter(
             (obstaculo) => {
                 return obstaculo !== obstaculoColidido;
@@ -172,13 +175,26 @@ class Obstaculos extends Objetos{
     }
     //Caso o objeto tenha sido colidido, ele é removido do array
 }
-
-desenhaPontuacao = function(){
-    ctx.fillStyle='white'
-    ctx.font="30px Arial"
-    ctx.fillText(`Pontos: 0`,30, 50)
+class Pontuacao {
+    #pontuacaoTotal
+    constructor(){
+        this.#pontuacaoTotal = 0;
+    }
+    setPontuacao(valorPonto){
+        this.#pontuacaoTotal += valorPonto;
+    }
+    getPontuacaoTotal(){
+        return this.#pontuacaoTotal;
+    }
 }
 
+function desenhaPontuacao(){
+    ctx.fillStyle='white'
+    ctx.font="30px Arial"
+    ctx.fillText(`Pontos: ${pontuacao.getPontuacaoTotal()}`,30, 50)
+}
+
+const pontuacao = new Pontuacao();
 const plataforma = new Plataforma(canvas.width - 330, canvas.height - 50, 100, 15)
 const bolinha = new Bola(canvas. width - 290, canvas.height - 71, 20, 20)
 
@@ -187,7 +203,9 @@ function obstaculoBuilder(){
         for(let coluna = 1; coluna <= 6; coluna++){
             let distanciaY = 40;
             let distanciaX = 90;
-            array_obstaculos.push(new Obstaculos(canvas.width - 630 + (distanciaX * linha), canvas.height - 650 + (distanciaY * coluna), 80, 30))
+            array_obstaculos.push(new Obstaculos(canvas.width - 630 + (distanciaX * linha), canvas.height - 650 + (distanciaY * coluna), 80, 30, 700 - (100 * coluna)))
+            //Obstaculos(x, y, largura, altura, valorPonto)
+            //valorPonto é para dar uma pontuação maior caso o jogador quebre um obstaculo da primeira linha de blocos
         }
     }
 }
@@ -223,6 +241,7 @@ function desenhaObstaculos(){
 
 function loop() {
     ctx.clearRect(0,0,canvas.width, canvas.height)
+    desenhaPontuacao()
     desenhaObstaculos();
     bolinha.desenha(ctx, 'white');
     bolinha.atualizar();
