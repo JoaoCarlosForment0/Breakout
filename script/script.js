@@ -2,7 +2,14 @@ const canvas = document.getElementById('canvas')
 const ctx = canvas.getContext('2d')
 const tecla_pressionada = {"KeyA": false, "KeyD": false}
 let game_over = false;
+let jogo_iniciado = false;
 let array_obstaculos = []
+
+document.addEventListener('keypress', (e)=>{
+    if(e.code === 'KeyW'){
+        jogo_iniciado = true;
+    }
+})
 
 document.addEventListener('keydown', (e) =>{
     switch(e.code) {
@@ -80,6 +87,9 @@ class Plataforma extends Objetos{
         //Se já perdeu não deixa o jogador se mexer mais.
         this.x += this.#velocidade;
     }
+    getVelocidade(){
+        return this.#velocidade
+    }
 }
 
 class Bola extends Objetos{
@@ -91,12 +101,16 @@ class Bola extends Objetos{
         this.#velocidadeX = 3;
     }
     atualizar(){
-        this.x -= this.#velocidadeX;
-        this.y -= this.#velocidadeY
-        this.colisaoHorizontal();
-        this.colisaoVertical();
-        this.colisaoPlataforma();
-        this.colisaoObstaculo();
+        if(jogo_iniciado){
+            this.x -= this.#velocidadeX;
+            this.y -= this.#velocidadeY
+            this.colisaoHorizontal();
+            this.colisaoVertical();
+            this.colisaoPlataforma();
+            this.colisaoObstaculo();
+        }else{
+            this.x += plataforma.getVelocidade();
+        }
     }
     colisaoHorizontal(){
         if(this.x <= 0 || this.x + this.largura >= canvas.width){
